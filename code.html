@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lupo Wedding - Guest Dashboard</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        :root {
+            --color-background: #181818; /* Matte black */
+            --color-surface: #232224;   /* Charcoal card/surface */
+            --color-surface-rgba: rgba(35, 34, 36, 0.9);
+            --color-border-rgba: rgba(231, 184, 163, 0.18); /* Rose gold accent */
+            --color-text: #f5f3f0;      /* Soft white */
+            --color-text-muted: #c9a68a; /* Lighter taupe for better contrast */
+            --color-primary: #e7b8a3;   /* Rose gold */
+            --color-attending: #b7c9a8; /* Soft sage */
+            --color-declined: #3a2c29;  /* Deep brown for declined */
+            --color-pending: #f9e7b4;   /* Soft yellow */
+            --color-total: #fff;        /* White for total */
+            --font-display: 'Cormorant Garamond', serif;
+            --font-body: 'Montserrat', sans-serif;
+            --radius-md: 12px;
+            --radius-full: 9999px;
+            --shadow-card: 0 6px 16px rgba(0, 0, 0, 0.08);
+            --color-title: #e7b8a3; /* Soft blush/rose gold */
+            --color-title-shadow: #fff6f0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background-color: var(--color-background);
+            background-image: none;
+            min-height: 100vh;
+            line-height: 1.7;
+            padding: 2.5rem 1rem;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 3.5rem; }
+        .dashboard { display: grid; grid-template-columns: 1fr 350px; gap: 2rem; }
+        .countdown {
+            margin-top: 0.7rem;
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            color: var(--color-title);
+            background: rgba(231,184,163,0.08);
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            border-radius: var(--radius-full);
+            box-shadow: 0 2px 8px 0 rgba(231,184,163,0.08);
+            letter-spacing: 1px;
+        }
+
+        .title {
+            font-family: var(--font-display);
+            font-size: 3.4rem;
+            color: var(--color-title);
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 0.7rem;
+            text-shadow: 0 4px 24px var(--color-title-shadow), 0 2px 12px rgba(231,184,163,0.12);
+            background: linear-gradient(90deg, #e7b8a3 60%, #f7e7d5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-style: italic;
+            color: var(--color-text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .card {
+            background: var(--color-surface-rgba);
+            border: 1.5px solid var(--color-border-rgba);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            box-shadow: var(--shadow-card);
+        }
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.7rem; padding-bottom: 1.1rem;
+            border-bottom: 1px solid var(--color-border-rgba);
+        }
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.55rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .card-action {
+            color: var(--color-primary);
+            background: none;
+            border: 1.5px solid var(--color-primary);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s, border 0.2s;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.4rem 1.2rem;
+            outline: none;
+        }
+        .card-action:hover, .card-action:focus {
+            color: #181818;
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 2.2rem;
+        }
+        .stat-card {
+            background: rgba(30, 40, 60, 0.7);
+            border-radius: var(--radius-md);
+            padding: 1.1rem 0.5rem;
+            text-align: center;
+            border-top: 4px solid;
+            box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+        }
+        .stat-card.attending { border-color: var(--color-attending); }
+        .stat-card.declined { border-color: var(--color-declined); }
+        .stat-card.pending { border-color: var(--color-pending); }
+        .stat-card.total { border-color: var(--color-total); }
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 2.1rem;
+            font-weight: 600;
+        }
+        .stat-card.attending .stat-value {
+            color: var(--color-attending);
+        }
+        .stat-card.declined .stat-value {
+            color: var(--color-declined);
+        }
+        .stat-card.pending .stat-value {
+            color: var(--color-pending);
+        }
+        .stat-card.total .stat-value {
+            color: var(--color-total);
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            letter-spacing: 1px;
+            margin-top: 0.2rem;
+            line-height: 1.8;
+        }
+
+        .donut-chart {
+            width: 170px; height: 170px; margin: 1rem auto; border-radius: 50%;
+            position: relative;
+            background: conic-gradient(
+                var(--color-attending) 0% var(--p-attending), 
+                var(--color-declined) var(--p-attending) var(--p-declined), 
+                var(--color-pending) var(--p-declined) 100%
+            );
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 0 8px rgba(231, 184, 163, 0.1);
+            margin-bottom: 2rem;
+        }
+        .donut-chart::before {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 65%; height: 65%;
+            background: var(--color-surface);
+            border-radius: 50%;
+            box-shadow: 0 1px 6px 0 rgba(0,0,0,0.10);
+        }
+        .chart-label {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1;
+        }
+        .chart-value {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+        .chart-text {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            margin-top: 0.1rem;
+            line-height: 1.8;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 1.2rem;
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .search-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.85rem 1.1rem 0.85rem 3.25rem;
+            background: rgba(35, 34, 36, 0.85);
+            border: 1.5px solid var(--color-border-rgba);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-size: 1.05rem;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: var(--color-primary);
+            background: rgba(35, 34, 36, 1);
+        }
+        .search-icon {
+            position: absolute; top: 50%; left: 1.25rem; transform: translateY(-50%);
+            color: var(--color-text-muted);
+            pointer-events: none;
+            width: 20px;
+            height: 20px;
+        }
+        .filter-container {
+            display: flex; gap: 0.6rem; margin-bottom: 1.7rem;
+        }
+        .filter-button {
+            background: transparent;
+            border: 1.5px solid var(--color-border-rgba);
+            color: var(--color-text-muted);
+            padding: 0.5rem 1.1rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s, border 0.2s;
+            font-size: 1rem;
+            font-weight: 500;
+            outline: none;
+        }
+        .filter-button:hover, .filter-button:focus {
+            color: #181818;
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(231, 184, 163, 0.2);
+        }
+        .filter-button.active {
+            color: #181818;
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .guest-list {
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            border-radius: var(--radius-md);
+            background: rgba(35, 34, 36, 0.7);
+            box-shadow: 0 1px 6px 0 rgba(0,0,0,0.07);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(231, 184, 163, 0.4) transparent;
+        }
+        .guest-list::-webkit-scrollbar { width: 6px; }
+        .guest-list::-webkit-scrollbar-track { background: transparent; }
+        .guest-list::-webkit-scrollbar-thumb { background: rgba(231, 184, 163, 0.4); border-radius: var(--radius-full); }
+        .guest-list::-webkit-scrollbar-thumb:hover { background: rgba(231, 184, 163, 0.6); }
+        .guest-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.1rem 0.5rem;
+            border-bottom: 1px solid var(--color-border-rgba);
+            gap: 0.7rem;
+            transition: background 0.2s, outline 0.2s;
+            opacity: 0;
+            animation: fadeIn 0.3s ease-in forwards;
+        }
+        .guest-item:hover {
+            background: rgba(231, 184, 163, 0.05);
+        }
+        .guest-item:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+            background: rgba(231, 184, 163, 0.05);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .guest-name {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--color-text);
+            letter-spacing: 0.2px;
+        }
+        .guest-status {
+            font-size: 0.82rem;
+            padding: 0.28rem 0.95rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            border: 1.5px solid transparent;
+        }
+        .guest-status.attending {
+            background: rgba(183, 201, 168, 0.18);
+            color: #b7c9a8;
+            border-color: #b7c9a833;
+        }
+        .guest-status.declined {
+            background: rgba(58, 44, 41, 0.18);
+            color: #3a2c29;
+            border-color: #3a2c2933;
+        }
+        .guest-status.pending {
+            background: rgba(249, 231, 180, 0.18);
+            color: #f9e7b4;
+            border-color: #f9e7b433;
+        }
+        .empty-message {
+            padding: 3rem; text-align: center; color: var(--color-text-muted); font-style: italic;
+        }
+        .guest-initials {
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f7e7d5 60%, #e7b8a3 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #b48c6e;
+            box-shadow: 0 1px 4px 0 rgba(231,184,163,0.10);
+            margin-right: 0.7rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .guest-initials:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(231, 184, 163, 0.2);
+        }
+
+        /* Accessibility: Focus states */
+        .card-action:focus, .filter-button:focus, .search-input:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .card { padding: 1.5rem 1rem; }
+            .search-container { padding-left: 0; padding-right: 0; }
+        }
+        @media (max-width: 600px) {
+            .title {
+                font-size: clamp(1.8rem, 5vw, 2rem);
+            }
+            .card-title {
+                font-size: clamp(1.3rem, 4vw, 1.4rem);
+            }
+            .dashboard { gap: 1.2rem; }
+            .card { padding: 1rem 0.5rem; }
+            .search-container { padding-left: 0; padding-right: 0; }
+            .donut-chart {
+                width: clamp(140px, 40vw, 150px);
+                height: clamp(140px, 40vw, 150px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="title">The Lupo Wedding</h1>
+            <p class="subtitle">Guest RSVP Dashboard</p>
+            <span class="countdown" id="countdown-timer"></span>
+        </header>
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Guest List</h2>
+                    <button class="card-action" id="export-button" aria-label="Export guest list as CSV">Export</button>
+                </div>
+                <div class="search-container">
+                    <i data-feather="search" class="search-icon" aria-hidden="true"></i>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search guests..." aria-label="Search guests">
+                </div>
+                <div class="filter-container" role="group" aria-label="Filter guests by RSVP status">
+                    <button class="filter-button active" data-filter="all" aria-pressed="true">All</button>
+                    <button class="filter-button" data-filter="Attending" aria-pressed="false">Attending</button>
+                    <button class="filter-button" data-filter="Declined" aria-pressed="false">Declined</button>
+                    <button class="filter-button" data-filter="No Response" aria-pressed="false">Pending</button>
+                </div>
+                <div class="guest-list" id="guest-list" aria-live="polite"></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h2 class="card-title">Attendance Overview</h2></div>
+                <div class="stats-grid">
+                    <div class="stat-card attending"><div class="stat-value" id="attending-count">0</div><div class="stat-label">Attending</div></div>
+                    <div class="stat-card declined"><div class="stat-value" id="declined-count">0</div><div class="stat-label">Declined</div></div>
+                    <div class="stat-card pending"><div class="stat-value" id="pending-count">0</div><div class="stat-label">Pending</div></div>
+                    <div class="stat-card total"><div class="stat-value" id="total-count">0</div><div class="stat-label">Total</div></div>
+                </div>
+                <div class="donut-chart" id="attendance-chart" aria-label="Attendance donut chart" aria-describedby="chart-desc">
+                    <div class="chart-label">
+                        <div class="chart-value" id="chart-total">0</div>
+                        <div class="chart-text">Guests</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE MANAGEMENT ---
+            let masterGuestData = [];
+            let currentFilter = 'all';
+            let currentSearchTerm = '';
+
+            // --- DOM ELEMENTS CACHE ---
+            const ui = {
+                guestList: document.getElementById('guest-list'),
+                searchInput: document.getElementById('search-input'),
+                filterButtons: document.querySelectorAll('.filter-button'),
+                exportButton: document.getElementById('export-button'),
+                attendingCount: document.getElementById('attending-count'),
+                declinedCount: document.getElementById('declined-count'),
+                pendingCount: document.getElementById('pending-count'),
+                totalCount: document.getElementById('total-count'),
+                chartTotal: document.getElementById('chart-total'),
+                attendanceChart: document.getElementById('attendance-chart'),
+            };
+
+            // --- DATA SOURCE ---
+            const GUEST_DATA_SOURCE = [
+                {"firstName":"Dan","lastName":"Appel","status":"Attending"}, {"firstName":"Mike","lastName":"Badie","status":"Attending"},
+                {"firstName":"Teresa","lastName":"Badie","status":"Attending"}, {"firstName":"Grace","lastName":"Bibby","status":"Attending"},
+                {"firstName":"Roan","lastName":"Bibby","status":"Attending"}, {"firstName":"Erik","lastName":"Brodnick","status":"No Response"},
+                {"firstName":"Taylor","lastName":"Brodnick","status":"Declined"}, {"firstName":"Morgan","lastName":"Buenz","status":"Attending"},
+                {"firstName":"Anne","lastName":"Cabanilla","status":"Declined"}, {"firstName":"James","lastName":"Cardosa","status":"Attending"},
+                {"firstName":"Dawn","lastName":"Chandler","status":"Declined"}, {"firstName":"Matt","lastName":"Charmello","status":"Attending"},
+                {"firstName":"Matt","lastName":"Christman","status":"Attending"}, {"firstName":"Steph","lastName":"Christman","status":"Attending"},
+                {"firstName":"Sava","lastName":"Comanescu","status":"Attending"}, {"firstName":"Coco","lastName":"Comanescu","status":"Attending"},
+                {"firstName":"Zoe","lastName":"Cordisco","status":"No Response"}, {"firstName":"Zak","lastName":"Cordisco","status":"No Response"},
+                {"firstName":"Auntie","lastName":"Courtney Conner","status":"Attending"}, {"firstName":"Kit","lastName":"Conner","status":"Attending"},
+                {"firstName":"Christian","lastName":"Cusella","status":"Attending"}, {"firstName":"Leah","lastName":"Monteleone","status":"Attending"},
+                {"firstName":"Terri","lastName":"Dailley","status":"Attending"}, {"firstName":"Ken","lastName":"Praszker","status":"Attending"},
+                {"firstName":"Brendan","lastName":"Davis","status":"Attending"}, {"firstName":"Jenny","lastName":"Lawson","status":"Attending"},
+                {"firstName":"Ginger","lastName":"Estrada","status":"Attending"}, {"firstName":"Karen","lastName":"Evans","status":"Declined"},
+                {"firstName":"Don","lastName":"Evans","status":"Declined"}, {"firstName":"Bryan","lastName":"Fenichel","status":"Attending"},
+                {"firstName":"Alex","lastName":"Fenichel","status":"Attending"}, {"firstName":"Raja","lastName":"Fenske","status":"Attending"},
+                {"firstName":"Montana","lastName":"Marks","status":"Attending"}, {"firstName":"Joey","lastName":"Ferguson","status":"Declined"},
+                {"firstName":"Elissa","lastName":"Ferguson","status":"Declined"}, {"firstName":"Lisa","lastName":"Gardner","status":"Attending"},
+                {"firstName":"Mike","lastName":"","status":"Attending"}, {"firstName":"Pat","lastName":"Gondkoff","status":"Attending"},
+                {"firstName":"Sarah","lastName":"Gondkoff","status":"Attending"}, {"firstName":"Bill","lastName":"Goodfellow","status":"Attending"},
+                {"firstName":"Dana","lastName":"Priest","status":"Attending"}, {"firstName":"Nick","lastName":"Goodfellow","status":"Declined"},
+                {"firstName":"Sean","lastName":"Stephens","status":"Declined"}, {"firstName":"Jodie","lastName":"Graham","status":"No Response"},
+                {"firstName":"George","lastName":"Gramaglia","status":"Attending"}, {"firstName":"Janine","lastName":"Gramaglia","status":"Attending"},
+                {"firstName":"Cody","lastName":"Greenberg","status":"Attending"}, {"firstName":"Paige","lastName":"Greenberg","status":"Attending"},
+                {"firstName":"Randy","lastName":"Grewal","status":"Attending"}, {"firstName":"Jiya","lastName":"Grewal","status":"Declined"},
+                {"firstName":"Conrad","lastName":"Griffin","status":"Attending"}, {"firstName":"Amelia","lastName":"Elgin","status":"Attending"},
+                {"firstName":"Laura","lastName":"Gschwind","status":"Declined"}, {"firstName":"Mark","lastName":"Gschwind","status":"Declined"},
+                {"firstName":"Casey","lastName":"Guillory","status":"No Response"}, {"firstName":"Scott","lastName":"Hartley","status":"No Response"},
+                {"firstName":"Sharon","lastName":"Hartley","status":"No Response"}, {"firstName":"Corey","lastName":"Heidebrecht","status":"No Response"},
+                {"firstName":"Jan","lastName":"","status":"No Response"}, {"firstName":"Sherri","lastName":"Hendrickson","status":"Declined"},
+                {"firstName":"Lynn","lastName":"Hopper","status":"Declined"}, {"firstName":"Jack","lastName":"Hopper","status":"Declined"},
+                {"firstName":"Matt","lastName":"Juillerat","status":"Attending"}, {"firstName":"Danica","lastName":"Juillerat","status":"Attending"},
+                {"firstName":"Alyssa","lastName":"Kianidehkian","status":"Attending"}, {"firstName":"Mollie","lastName":"Labun","status":"Attending"},
+                {"firstName":"Zac","lastName":"Potter","status":"Attending"}, {"firstName":"Anthony","lastName":"Lupo","status":"Attending"},
+                {"firstName":"Michelle","lastName":"Steidle","status":"Attending"}, {"firstName":"Nicole","lastName":"Lupo","status":"Attending"},
+                {"firstName":"Rick","lastName":"Lupo","status":"Attending"}, {"firstName":"Margie","lastName":"Lupo","status":"Attending"},
+                {"firstName":"Justin","lastName":"Malki","status":"Attending"}, {"firstName":"Rene","lastName":"Malki","status":"Attending"},
+                {"firstName":"Garrett","lastName":"Martinez","status":"Attending"}, {"firstName":"Dan","lastName":"Marver","status":"Declined"},
+                {"firstName":"Callie","lastName":"Gaylord","status":"Declined"}, {"firstName":"Maggie","lastName":"Mayer","status":"Attending"},
+                {"firstName":"Austin","lastName":"McQuay","status":"Attending"}, {"firstName":"Tierney","lastName":"St. Aubin","status":"Attending"},
+                {"firstName":"Wes","lastName":"Norris","status":"No Response"}, {"firstName":"Jim","lastName":"O'Rourke","status":"Attending"},
+                {"firstName":"Annie","lastName":"O'Rourke","status":"Attending"}, {"firstName":"Ellie","lastName":"Ostroff","status":"Attending"},
+                {"firstName":"Nick","lastName":"Yeshchin","status":"Attending"}, {"firstName":"Nuvleen","lastName":"Pahar","status":"Attending"},
+                {"firstName":"Dayne","lastName":"Vinther","status":"Attending"}, {"firstName":"Stevie","lastName":"Patmont","status":"Declined"},
+                {"firstName":"Alyse","lastName":"Patmont","status":"Declined"}, {"firstName":"Alex","lastName":"Petrosian","status":"Declined"},
+                {"firstName":"Dima","lastName":"Petrosian","status":"Declined"}, {"firstName":"Tyler","lastName":"Pope","status":"No Response"},
+                {"firstName":"Samantha","lastName":"Pope","status":"No Response"}, {"firstName":"Jaymes","lastName":"Potts","status":"No Response"},
+                {"firstName":"Shebly","lastName":"Potts","status":"No Response"}, {"firstName":"Joey","lastName":"Potts","status":"Attending"},
+                {"firstName":"Sav","lastName":"Reilly","status":"Attending"}, {"firstName":"Jordan","lastName":"Potts","status":"Attending"},
+                {"firstName":"Cash","lastName":"Mankin","status":"Declined"}, {"firstName":"Greg","lastName":"Purdum","status":"Declined"},
+                {"firstName":"Mel","lastName":"","status":"Declined"}, {"firstName":"Kevin","lastName":"Rask","status":"Declined"},
+                {"firstName":"Toni","lastName":"Dymon","status":"Declined"}, {"firstName":"Susan","lastName":"Ravina","status":"Declined"},
+                {"firstName":"Jim","lastName":"Ravina","status":"Declined"}, {"firstName":"Ben","lastName":"Richman","status":"No Response"},
+                {"firstName":"Maddie","lastName":"Rubin","status":"Attending"}, {"firstName":"Shanelle","lastName":"Rucker","status":"Attending"},
+                {"firstName":"Charlie","lastName":"Sanchez","status":"Attending"}, {"firstName":"Gloria","lastName":"Sanchez","status":"Attending"},
+                {"firstName":"Marcel","lastName":"Schwager","status":"Attending"}, {"firstName":"Krista","lastName":"Damico","status":"Attending"},
+                {"firstName":"Erica","lastName":"Schwar","status":"Attending"}, {"firstName":"Mike","lastName":"Schwar","status":"Attending"},
+                {"firstName":"Stella","lastName":"Serrao","status":"Attending"}, {"firstName":"Dennis","lastName":"","status":"Attending"},
+                {"firstName":"Brian","lastName":"Silva","status":"No Response"}, {"firstName":"Jackson","lastName":"Smith","status":"Attending"},
+                {"firstName":"Mandie","lastName":"Smith","status":"Attending"}, {"firstName":"Pat","lastName":"Sornsin","status":"Attending"},
+                {"firstName":"Sage","lastName":"Flynn","status":"Attending"}, {"firstName":"Harrison","lastName":"Stahl","status":"Attending"},
+                {"firstName":"Lem","lastName":"Hale","status":"Declined"}, {"firstName":"Cate","lastName":"Steidle","status":"Attending"},
+                {"firstName":"Jordan","lastName":"Dawson","status":"Attending"}, {"firstName":"Ed","lastName":"Steidle","status":"Attending"},
+                {"firstName":"Linda","lastName":"Steidle","status":"Attending"}, {"firstName":"Jeff","lastName":"Stollenwerk","status":"Attending"},
+                {"firstName":"Chelsea","lastName":"Tabarez","status":"No Response"}, {"firstName":"Michael","lastName":"Eggleston","status":"No Response"},
+                {"firstName":"Hailey","lastName":"Tabarez","status":"Declined"}, {"firstName":"Sam","lastName":"Tearle","status":"Declined"},
+                {"firstName":"Sara","lastName":"Tearle","status":"Declined"}, {"firstName":"Mike","lastName":"Thorne","status":"Attending"},
+                {"firstName":"Debbie","lastName":"Valenica","status":"Declined"}, {"firstName":"Hayley","lastName":"Vandenberg","status":"Attending"},
+                {"firstName":"Evan","lastName":"Vandenberg","status":"Attending"}, {"firstName":"Nick","lastName":"Vuoto","status":"Attending"},
+                {"firstName":"Hannah","lastName":"Vuoto","status":"Attending"}, {"firstName":"Suzanne","lastName":"Wilsom","status":"Attending"},
+                {"firstName":"Denise","lastName":"Wolford","status":"Declined"}, {"firstName":"Danielle","lastName":"Worell","status":"Declined"},
+                {"firstName":"Alex","lastName":"Worrell","status":"Declined"}, {"firstName":"Joe","lastName":"Young","status":"Attending"}
+            ];
+
+            // --- UI UPDATE FUNCTIONS ---
+            const updateDashboardMetrics = () => {
+                const attendingCount = masterGuestData.filter(g => g.status === 'Attending').length;
+                const declinedCount = masterGuestData.filter(g => g.status === 'Declined').length;
+                const pendingCount = masterGuestData.filter(g => g.status === 'No Response').length;
+                const totalCount = masterGuestData.length;
+
+                ui.attendingCount.textContent = attendingCount;
+                ui.declinedCount.textContent = declinedCount;
+                ui.pendingCount.textContent = pendingCount;
+                ui.totalCount.textContent = totalCount;
+                ui.chartTotal.textContent = totalCount;
+
+                if (totalCount > 0) {
+                    const pAttending = (attendingCount / totalCount) * 100;
+                    const pDeclined = pAttending + (declinedCount / totalCount) * 100;
+                    ui.attendanceChart.style.setProperty('--p-attending', `${pAttending}%`);
+                    ui.attendanceChart.style.setProperty('--p-declined', `${pDeclined}%`);
+                } else {
+                    ui.attendanceChart.style.setProperty('--p-attending', `0%`);
+                    ui.attendanceChart.style.setProperty('--p-declined', `0%`);
+                }
+            };
+
+            const renderGuestList = (guests) => {
+                if (guests.length === 0) {
+                    ui.guestList.innerHTML = '<div class="empty-message">No guests match your criteria.</div>';
+                    return;
+                }
+                const statusMap = { 'Attending': 'attending', 'Declined': 'declined', 'No Response': 'pending' };
+                const guestHTML = guests.map(guest => {
+                    // Get initials (first letter of first and last name, or just first if no last)
+                    let initials = '';
+                    if (guest.firstName) initials += guest.firstName[0];
+                    if (guest.lastName) initials += guest.lastName[0];
+                    if (!guest.lastName && guest.firstName.length > 1) initials += guest.firstName[1];
+                    return `
+                        <div class="guest-item" tabindex="0">
+                            <div class="guest-initials">${initials.toUpperCase()}</div>
+                            <div class="guest-name">${guest.firstName} ${guest.lastName || ''}</div>
+                            <div class="guest-status ${statusMap[guest.status]}">${guest.status === 'No Response' ? 'Pending' : guest.status}</div>
+                        </div>
+                    `;
+                }).join('');
+                ui.guestList.innerHTML = guestHTML;
+            };
+
+            const applyFiltersAndRender = () => {
+                let filteredGuests = masterGuestData;
+                if (currentFilter !== 'all') {
+                    filteredGuests = filteredGuests.filter(guest => guest.status === currentFilter);
+                }
+                if (currentSearchTerm) {
+                    const term = currentSearchTerm.toLowerCase();
+                    filteredGuests = filteredGuests.filter(guest => 
+                        `${guest.firstName} ${guest.lastName}`.toLowerCase().includes(term)
+                    );
+                }
+                renderGuestList(filteredGuests);
+            };
+
+            // --- EVENT HANDLERS ---
+            ui.filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    ui.filterButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-pressed', 'false');
+                    });
+                    button.classList.add('active');
+                    button.setAttribute('aria-pressed', 'true');
+                    currentFilter = button.dataset.filter;
+                    applyFiltersAndRender();
+                });
+            });
+
+            ui.searchInput.addEventListener('input', () => {
+                currentSearchTerm = ui.searchInput.value;
+                applyFiltersAndRender();
+            });
+
+            ui.exportButton.addEventListener('click', () => {
+                let dataToExport = masterGuestData.filter(guest => 
+                    (currentFilter === 'all' || guest.status === currentFilter) &&
+                    (`${guest.firstName} ${guest.lastName}`.toLowerCase().includes(currentSearchTerm.toLowerCase()))
+                );
+                const csvContent = "data:text/csv;charset=utf-8," 
+                    + "First Name,Last Name,Status\n" 
+                    + dataToExport.map(g => `${g.firstName},${g.lastName || ''},${g.status}`).join("\n");
+                const link = document.createElement("a");
+                link.setAttribute("href", encodeURI(csvContent));
+                link.setAttribute("download", "lupo_wedding_guest_list.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            // --- INITIALIZATION ---
+            const initializeApp = () => {
+                masterGuestData = GUEST_DATA_SOURCE.sort((a, b) => (a.lastName || '').localeCompare(b.lastName || ''));
+                updateDashboardMetrics();
+                applyFiltersAndRender();
+                feather.replace(); // Activate icons
+            };
+
+            // --- COUNTDOWN TIMER ---
+            function updateCountdown() {
+                const now = new Date();
+                const weddingDate = new Date('2025-10-17T00:00:00');
+                const diff = weddingDate - now;
+                if (diff <= 0) {
+                    document.getElementById('countdown-timer').textContent = "It's wedding day!";
+                    return;
+                }
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+                document.getElementById('countdown-timer').textContent = `${days} days, ${hours} hrs, ${minutes} min, ${seconds} sec until the big day!`;
+            }
+            setInterval(updateCountdown, 1000);
+            updateCountdown();
+
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
